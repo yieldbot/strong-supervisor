@@ -20,10 +20,10 @@ var agentOptions = {
 
 var tracer = require('concurix');
 var tracerOptions = {
-  accountKey: config.clustered.toString()+process.pid.toString(),
-  archiveInterval: 60000,
-  api_host: 'localhost', // XXX(seto) get it from Hotname parameter in Deploy
-  api_port: 8103 // XXX(seto) get it from Port parameter in Deploy
+  accountKey: agent().config.appName,
+  archiveInterval: process.env.STRONG_CX_TRACER_ARCHIVE_INTERVAL || 60000,
+  api_host: process.env.STRONG_CX_SERVER_API_HOST || 'localhost',
+  api_port: process.env.STRONG_CX_SERVER_API_PORT || 8103
 };
 
 switch(config.profile) {
@@ -34,12 +34,12 @@ switch(config.profile) {
     break;
 
   case undefined: // No explicit request for profiling or metrics.
-    tracer(tracerOptions);
     // Start with StrongOps if app is registered. This will print warning
     // messages to the console if the api key is not found, which is backwards
     // compatible.
     agent().profile(undefined, undefined, agentOptions);
     // Otherwise, just start. This is a no-op if it is already started.
+    tracer(tracerOptions);
     agent().start();
     break;
 
@@ -49,9 +49,9 @@ switch(config.profile) {
     // warning messages. If an app is missing a name, profile may still fail
     // to start, so drop-through to start(). We must re-supply options.
     if (agent().config.key)
-      tracer(tracerOptions);
       agent().profile(undefined, undefined, agentOptions);
     // Otherwise, just start. This is a no-op if already started.
+    tracer(tracerOptions);
     agent().start();
     break;
 
