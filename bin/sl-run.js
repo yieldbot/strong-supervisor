@@ -21,9 +21,7 @@ var agentOptions = {
 var tracer = require('concurix');
 var tracerOptions = {
   accountKey: agent().config.appName,
-  archiveInterval: process.env.STRONG_CX_TRACER_ARCHIVE_INTERVAL || 60000,
-  api_host: process.env.STRONG_CX_SERVER_API_HOST || 'localhost',
-  api_port: process.env.STRONG_CX_SERVER_API_PORT || 8103
+  useHttp: false
 };
 
 switch(config.profile) {
@@ -67,6 +65,7 @@ if ((config.clustered && config.isMaster) || config.detach) {
 // starts metrics reporting if --metrics was set, or does nothing
 config.sendMetrics();
 config.sendExpressRecords();
+config.sendTraceObject();
 config.sendTraces();
 
 if (!config.clustered) {
